@@ -1,0 +1,106 @@
+\documentclass[runningheads]{llncs}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\begin{document}
+\section{Realidad Aumentada con Marcadores}
+\subsection{Deteccion y asociación simultanea}
+
+Antes de la propia detección del marcador el sistema, primero obtiene una \textit{imagen de intensidad} (en escala de grises), por lo que si el formato de entrada es diferente, tal como RGB, la imagen es transformada utilizando técnicas conocidas
+(Digital Image Processing, tecnica para rgb to grey)
+
+La primer tarea necesaria para la deteccion de marcadores es encontrar los bordes de un posible marcador, para ellos se utilizan comunmente dos approachs, utilizar tecnicas de thresholding sobre imagenes para detectar marcadores en la imagen binaria, o usar algoritmos de deteccion de bordes en escala de grises (73,74)
+
+En el caso de ARToolKit, y normalmente, utilizan métodos de thresholdin adaptativos para que sean eficientes frente a los cambios de iluminación (75)
+
+Luego del thresholding el sistema tiene una imagen binaria que contiene los objetos y el fondo de la imagen original. En este paso todos los objetos detectados son posibles marcadores. Generalmente, el siguiente paso es realizar un proceso de labelling, de esta forma descartar objetos que claramente no son marcadores sea por forma o tamaño.
+En la siguiente etapa los bordes de los posibles marcadores son delimitados y sus posiciones utilizadas en tecnicas de line fitting. Luego del line fitting el sistema realiza un nuevo chequeo sobre los candidatos analizando si posen 4 lineas rectas y 4 esquinas cada uno. Finalmente, se optimiza la localizacion de las esquinas a nivel de sub-pixels
+
+\subsection{asd}
+A la hora de determinar que objeto detectado es un marcador válido y cual no, los sistemas de realidad aumentada, en su mayoria, utilizan criterios simples de rapida aceptacion de esta manera, al apuntar a aplicaciones en tiempo real, se trata de disminuir el costo computacional de la deteccion de los marcadores.
+
+El sistema debe ignorar aquellas areas que consisten de pocos pixeles, ya que aunque en esa area exista un marcador válido, el tamaño y la distancia a la camara del mismo dificultaria el calculo de su pose con alguna fidelidad válida. Adicionalmente utilizando este approach el sistema debe prestar atención de no eliminar areas que pertenezcan al interior de algún marcador util y válido
+
+\subsubsection{Marker pose}
+
+La pose de un objeto esta determinada por su localizacion y su orientacion. La posición se puede representar mediante tres coordenadas de traslacion y su orientacion mediante tres angulos de rotacion. Por lo tanto, una pose tiene 6 grados de libertad (6 DOF).
+
+La pose de una camara calibrada puede ser calculada de manera unica mediante un minimo de 4 puntos (coplanar but non-collinear) (72). Por lo tanto un sistema puede calcular la pose del marcador utilizando las 4 esquinas del mismo (pdf S3)
+
+Otro detalle a considerar a la hora de calcular la matriz de la camara, es la presencia de tres sistemas de coordenadas, el proyectado en la imagen de la camara (2D), y los sistemas 3D de la camara y el marcador.
+
+\paragraph{Camera transofmration}
+Los sistemas de coordenadas de la camara y del marcador difierente entre si por la rotacion y la trasalacion. La relación entre ambos puede ser descripta como:
+
+\[
+\begin{bmatrix}
+X_{C} \\
+Y_{C} \\
+Z_{C} \\
+1
+\end{bmatrix} =
+\begin{bmatrix}
+R_{11} && R_{12} && R_{13} && T_{1} \\
+R_{21} && R_{22} && R_{23} && T_{2} \\
+R_{31} && R_{32} && R_{33} && T_{3} \\
+0 && 0 && 0 && 1
+\end{bmatrix}
+\begin{bmatrix}
+X_{M} \\
+Y_{M} \\
+Z_{M} \\
+1
+\end{bmatrix} = 
+T_{CM} * \begin{bmatrix}
+X_{M} \\
+Y_{M} \\
+Z_{M} \\
+1
+\end{bmatrix}
+\]
+
+Donde $ T_{CM} $ es la matriz de pose o la matriz de transformación de la camara, la cual se utiliza para determinar la posición del objeto a aumentar con respecto en el sistemas de coordenadas de la camara. Los valores de $T_{i}$ corresponden al vector de traslacion, mientras que los nueve restantes $R_{ij}$ son parametros obtenidos a partir de las 3 coordenadas de rotación.
+Esta operación se realiza en cada frame donde un marcador es detectado.
+
+La relación entre las coordenadas de la imagen de la camara y y las coordenadas de la camara esta definida por:
+\[
+\begin{bmatrix}
+hX_{1} \\
+hY_{1} \\
+h 
+\end{bmatrix} =
+\begin{bmatrix}
+P_{11} && P_{12} && P_{13} && 0\\ 
+0 && P_{22} && P_{23} && 0\\
+0 && 0 && 1 && 0
+\end{bmatrix} 
+\begin{bmatrix}
+X_{C} \\
+Y_{C} \\
+Z_{C} \\
+1
+\end{bmatrix} = P \begin{bmatrix}
+X_{C} \\
+Y_{C} \\
+Z_{C} \\
+1
+\end{bmatrix}
+\]
+
+donde $P$ se denomina \textit{intrinsic camera parameters}, la cual es camara dependiente. En el caso de ARToolKit esta misma esta definida como:
+
+\[
+\begin{bmatrix}
+s_{x}f && 0 && x_{0} && 0\\ 
+0 && s_{y}f && y_{0} && 0\\
+0 && 0 && 1 && 0
+\end{bmatrix} 
+\]
+
+donde $f$ es la longitud focal de la camara, $s_{x}$ el factor de escala en el eje $x$, $s_{y}$ el factor de escala en el eje $y$ y por último $(x_{0},y_{0})$ es la posicion donde el eje $z$ del sistema de coordenadas de la camara \textit{frame passes}
+
+
+\subsection{Pose calculation}
+
+Dada las caracteristicas de las camaras modernas,podemos asumir que la distorsion puede ser separada del modelo de la camara. Aquellos puntos que pertenecen a las coordenadas sin distorsion %$\textbf{x_{i}}$ y los pertenencientes a las coordenadas del sistema del marcado como $\textbf{X_{i}}$.
+%El proceso de deteccion de marcadores nos brinda las coordenadas de las esquinas del mismo  $\textbf{x_{1},x_{2},x_{3},x_{4}}$
+\end{document}

@@ -1,0 +1,242 @@
+
+\documentclass[runningheads]{llncs}
+%
+\usepackage{graphicx}
+\usepackage{amsmath}
+
+\begin{document}
+
+\section{OpenPose}
+
+\subsection{Pose Machines}
+
+Definimos la ubicación de la parte \textit{p}, a nivel de pixeles, como $Y_{\textit{p}} \in Z \subset \mathbf{R}^{2}$ donde $Z$ es un conjunto de pares $(u,v)$ de todas las coordenadas de pixeles en la imagen. El objetivo es predecir las localizaciones $ Y = (Y_{1},..., Y_{\textit{P}}) $ para todas las partes humanas $P$. Una pose machine consiste de una secuencia de predictores de multiples clases $g_{t}(.)$ los cuales son entrenados para predecir las ubicaciones en cada nivel de la estructura. En cada estado $t \in {1...T}$ el clasificador $g_{t}$ predice el nivel de confianza de asignar una posición determinada a cada parte  donde $Y_{\textit{p}} = z, \forall z \in Z$ basandose en features extraidos de la imagen en la ubicacion $z$, denotados $ x_{z} \in \mathbf{R}^{d}$, y mediante informacion contextual proveniente de los clasificadores vecinos al rededor de $Y_{\textit{p}}$ en el estado $t$.
+Un clasificador en el primer paso, $t= 1$ produce los siguientes valores de confianza:
+
+\begin{equation}
+g_{1}(x_{z}) \rightarrow \{ b_{1}^p(Y_{p} = z) \}_{p \in \{0..P\}}
+\end{equation}
+
+Donde $ b_{1}^p(Y_{p} = z)$ es el puntaje predecido por el clasificador $g_1$ a la asignacion de la $p^{th}$ parte en el primer paso en la coordenada $z$ de la imagen. Para representar todos los valores de confianza de una parte $p$ evaluado en todos los puntos $z=(u,v)^T$ de la imagen como $\textbf{b}_t^p \in \mathbf{R}^{wxh}$ donde $w$ y $h$ son el ancho y el alto de la imagen respectivamente.
+\begin{equation}
+\textbf{b}_t^p[u,v]= b_t^p(Y_p = z)
+\end{equation}
+Por conveniencia el conjunto de los mapas de confianza de todas las partes se denota como $\textbf{b}_t \in \mathbf{R}^{wxhx(P+1)})$.
+
+En los siguientes estados, el clasificador predice el nivel de confianza para toda asignacion $Y_p = z$ basandose en los features de la imagen $x_z^t \in \mathbf{R}^d$ y la informacion contextual procedente de los clasificados vecinos al rededor de $Y_p$:
+
+\begin{equation}
+g_t(x_z^{'}, \psi_t(z,\textbf{b}_{t-1})) \rightarrow \{ b_t^p(Y_p = z)  \}_{p \in \{0...P+1 \}}
+\end{equation}
+
+Donde $\psi_{t\ge1}(\cdot)$ es un mapeo desde los mapas de confianza $\textbf{b}_{t-1}$ a los context features. En casa paso las confianzas computadas proveen una estimacion cada vez mas refinada de las posiciones de las partes  
+\subsection{Deteccion y asociación simultanea}
+La arquitectura de OpenPose predice simultaneamente los confidence maps y los affinity fields. La red neuronal es dividida en dos ramas, una de las cuales preidce los confidence maps y la otra los affinity fields. Cada rama es una arquitectura de prediccion iterativa, basada en Wei et al. , en donde las predicciones se van refinando en los sucesivos estadios con supervisiones intermedias en cada uno de los estadios.
+
+La imagen es primero analizada por una red convuncional (VGG-19), generando un conjunto de features F, los cuales son la entrada inicial para cada una de las ramas. En el primer paso la red produce un conjunto de confidence maps $ S^{1} = \rho^{1}(F) $ y un conjunto de part affinity fields $ L^{1} = \phi^{1}(F) $ donde $ \rho^{1} $ y $ \phi^{1} $ son los CNNs inference para el Paso 1. Como paso intermedio las predicciones de ambas ramas del paso previo, junto con los Features F originales de la imagen, son concatenados y usados para producir predicciones refinadas
+
+\begin{equation}
+\textbf{S}^t = \rho^t(\textbf{F},\textbf{S}^{t-1},\textbf{L}^{t-1}), \forall t \geq 2
+\end{equation}
+\begin{equation}
+\textbf{L}^t = \phi^t(\textbf{F},\textbf{S}^{t-1},\textbf{L}^{t-1}), \forall t \geq 2
+\end{equation}
+
+Para guiar a la red para iterativamente predecir los confidence maps y los PAFS, se aplican dos funciones de perdida al final de cada estado, una para cada una de las ramas. Se utiliza una perdida $L_{2}$ entre las predicciones estimadas y los groundtruth maps y PAFs. Se le agregan pesos a las funciones de perdida para poder abordar el problema donde algunos dataset no etiquetan a toda la gente en las imagenes. Las funciones de perdida en el estado $t$ quedan definidas como:
+
+\begin{equation}
+f_{\textbf{S}}^t = \sum_{j=1}^{J} \sum_{z} \textbf{W}(z) \cdot || \textbf{S}_{j}^t(z) - \textbf{S}_{j}^*(z)||_2^2
+\end{equation}
+\begin{equation}
+f_{\textbf{L}}^t = \sum_{c=1}^{C} \sum_{z} \textbf{W}(z) \cdot || \textbf{L}_{c}^t(z) - \textbf{L}_{c}^*(z)||_2^2
+\end{equation}
+
+Donde $\textbf{S}_{c}^*(z)$ es el \textit{groundtruth} mapa de confianza, $\textbf{L}_{c}^*(z)$ es el \textit{groundtruth} part affinity field y $\textbf{W}$ es una mascara binaria donde $\textbf{W}(z) = 0$ cuando la anotación no esta disponible en la coordenada $z$ de la imagen. Esta mascara es utilizada para evitar los true positive durante el entrenamiento. El problema del vanishin gradient es abordado mediante la supervision intermedia, replenishing el gradiente perdiocamente. el objetivo es 
+
+\begin{equation}
+f = \sum_{t=1}^{T}(f_{\textbf{S}}^t + f_{\textbf{L}}"t)
+\end{equation} 
+
+
+\subsection{Confidence maps}
+Para evaluar $f_S$ durante entrenamiento, se generan los groundtruth mapas de confianza $\textbf{S}^*$ a partir de los 2D keypoints anotados. Cada mapa de confianza es una representacion 2D de la confianza the una parte del cuerpo en particular que oocurre en cada pixel de la imagen. Idealmente si solo aparece una unica persona en la imagen un solo pico deberia existir en cada mapa de confianza, en cambio, si hay multiples personas, deberia haber un pico correspondiente a cada parte visible $j$ para cada persona $k$.
+Primero se generan los mapas de confianza individuales  $\textbf{S}_{j,k}
+^*$ apra cada persona $k$. Sea $x_{j,k} \in \mathbf{R}^2$ sea la posicion grountruth de la parte $j$ para la persona $k$. El valor en la posicion $z \in \mathbf{R}^2$ es definido en $S_{j,k}^*$ como:
+\begin{equation}
+S_{j,k}^*(z) = exp(\frac{||z - x_{j,k}||_2^2}{\theta^2})
+\end{equation}
+
+donde $\theta$ controla la amplitud del pico. El mapa de confianza groundtruth a ser predecido por la red, es una funcion de agfregacion de los mapas iindividuales mediante un operacion de maximo
+
+\subsection{Asociación de Partes}
+Dado un conjunto de partes del cuerpo humano, se necesita una metrica que determine la asociacion entre cada par de partes, para de esta forma determinar si pertenecen a la misma persona. Una forma posible de medir el grado de asociacion es utilizando puntos intermedios entre dos partes y chequear la incidencia entre las partes detectadas como candidatas. Esta aproximacion tiene limitaciones cuando la cantidad de personas es mucha y se encuentran muy cerca unas de otras, estos puntos intermedios podrian soportar falsas asociaciones.
+
+Para enfrentar estas limitaciones OpenPose introdujo el concepto de part affinity fields, los cuales preservan informacion sobre la ubicacion y la orientacion de la extremidad. La part affinity es un campo vectorial 2D para cada extremidad, donde por cada pixel que pertenece a una extremidad en particular, un vector 2D determina la direccion de puntos desde una parte de la extremidad hasta la otra. Cada tipo de extremidad tiene un correspondiente affinity field uniendo las dos partes asociadas.
+
+Considerando una extremidad, sea $x_{j1,k}$ y $x_{j2,k}$ las posisiciones groundtruth de la parte j1 y j2 que conforman la extremidad c para la persona k en la imagen. Si el punto p se encuentra en la extremidad, el valor $L^{*}_{c,k}(p)$ es un vector unitario que apunta desde j1 a j2, para los demas puntos el vector es 0.
+
+Para evaluar $f_{\textbf{L}}$ durante entrenamiento definimos los groundtruth part affinity field, $\textbf{L}_{c,k}^*$ en un punto $z$ de la imagen
+
+\begin{equation}
+\textbf{L}_{c,k}^* = \begin{cases}
+v &\text{si z en extremidad $c,k$}\\
+0 &\text{c.c.}
+\end{cases}
+\end{equation}
+
+donde $v = (x_{j2,k}-x_{j1,k})/||x_{j2,k}-x_{j1,k}||_2$ es un vector unitario en la dirección de la extremidad. El conjunto de puntos que determinarn la extremidad esta definido como aquellos dentro del line segment, es decir aquellos puntos $z$ tales que 
+\begin{equation}
+0 \le v \cdot (z - x_{j1,k}) \le l_{c,k}
+\end{equation}
+\begin{equation}
+|v_{\perp} \cdot (z - x_{j1,k})| \le \sigma_{l}
+\end{equation}
+Donde $\sigma_{l}$ es el ancho de la extremidad en pixeles y $l_{c,k}=||x_{j2,k}-x_{j1,k}||_2$ el largo
+
+
+
+	\section{Realidad Aumentada con Marcadores}
+	\subsection{Deteccion y asociación simultanea}
+	
+	Antes de la propia detección del marcador el sistema, primero obtiene una \textit{imagen de intensidad} (en escala de grises), por lo que si el formato de entrada es diferente, tal como RGB, la imagen es transformada utilizando técnicas conocidas
+	(Digital Image Processing, tecnica para rgb to grey)
+	
+	La primer tarea necesaria para la deteccion de marcadores es encontrar los bordes de un posible marcador, para ellos se utilizan comunmente dos approachs, utilizar tecnicas de thresholding sobre imagenes para detectar marcadores en la imagen binaria, o usar algoritmos de deteccion de bordes en escala de grises (73,74)
+	
+	En el caso de ARToolKit, y normalmente, utilizan métodos de thresholdin adaptativos para que sean eficientes frente a los cambios de iluminación (75)
+	
+	Luego del thresholding el sistema tiene una imagen binaria que contiene los objetos y el fondo de la imagen original. En este paso todos los objetos detectados son posibles marcadores. Generalmente, el siguiente paso es realizar un proceso de labelling, de esta forma descartar objetos que claramente no son marcadores sea por forma o tamaño.
+	En la siguiente etapa los bordes de los posibles marcadores son delimitados y sus posiciones utilizadas en tecnicas de line fitting. Luego del line fitting el sistema realiza un nuevo chequeo sobre los candidatos analizando si posen 4 lineas rectas y 4 esquinas cada uno. Finalmente, se optimiza la localizacion de las esquinas a nivel de sub-pixels
+	
+	\subsection{asd}
+	A la hora de determinar que objeto detectado es un marcador válido y cual no, los sistemas de realidad aumentada, en su mayoria, utilizan criterios simples de rapida aceptacion de esta manera, al apuntar a aplicaciones en tiempo real, se trata de disminuir el costo computacional de la deteccion de los marcadores.
+	
+	El sistema debe ignorar aquellas areas que consisten de pocos pixeles, ya que aunque en esa area exista un marcador válido, el tamaño y la distancia a la camara del mismo dificultaria el calculo de su pose con alguna fidelidad válida. Adicionalmente utilizando este approach el sistema debe prestar atención de no eliminar areas que pertenezcan al interior de algún marcador util y válido
+	
+	\subsubsection{Marker pose}
+	
+	La pose de un objeto esta determinada por su localizacion y su orientacion. La posición se puede representar mediante tres coordenadas de traslacion y su orientacion mediante tres angulos de rotacion. Por lo tanto, una pose tiene 6 grados de libertad (6 DOF).
+	
+	La pose de una camara calibrada puede ser calculada de manera unica mediante un minimo de 4 puntos (coplanar but non-collinear) (72). Por lo tanto un sistema puede calcular la pose del marcador utilizando las 4 esquinas del mismo (pdf S3)
+	
+	Otro detalle a considerar a la hora de calcular la matriz de la camara, es la presencia de tres sistemas de coordenadas, el proyectado en la imagen de la camara (2D), y los sistemas 3D de la camara y el marcador.
+	
+	\paragraph{Camera transofmration}
+	Los sistemas de coordenadas de la camara y del marcador difierente entre si por la rotacion y la trasalacion. La relación entre ambos puede ser descripta como:
+	
+	\[
+	\begin{bmatrix}
+	X_{C} \\
+	Y_{C} \\
+	Z_{C} \\
+	1
+	\end{bmatrix} =
+	\begin{bmatrix}
+	R_{11} && R_{12} && R_{13} && T_{1} \\
+	R_{21} && R_{22} && R_{23} && T_{2} \\
+	R_{31} && R_{32} && R_{33} && T_{3} \\
+	0 && 0 && 0 && 1
+	\end{bmatrix}
+	\begin{bmatrix}
+	X_{M} \\
+	Y_{M} \\
+	Z_{M} \\
+	1
+	\end{bmatrix} = 
+	T_{CM} * \begin{bmatrix}
+	X_{M} \\
+	Y_{M} \\
+	Z_{M} \\
+	1
+	\end{bmatrix}
+	\]
+	
+	Donde $ T_{CM} $ es la matriz de pose o la matriz de transformación de la camara, la cual se utiliza para determinar la posición del objeto a aumentar con respecto en el sistemas de coordenadas de la camara. Los valores de $T_{i}$ corresponden al vector de traslacion, mientras que los nueve restantes $R_{ij}$ son parametros obtenidos a partir de las 3 coordenadas de rotación.
+	Esta operación se realiza en cada frame donde un marcador es detectado.
+	
+	La relación entre las coordenadas de la imagen de la camara y y las coordenadas de la camara esta definida por:
+	\[
+	\begin{bmatrix}
+	hX_{1} \\
+	hY_{1} \\
+	h 
+	\end{bmatrix} =
+	\begin{bmatrix}
+	P_{11} && P_{12} && P_{13} && 0\\ 
+	0 && P_{22} && P_{23} && 0\\
+	0 && 0 && 1 && 0
+	\end{bmatrix} 
+	\begin{bmatrix}
+	X_{C} \\
+	Y_{C} \\
+	Z_{C} \\
+	1
+	\end{bmatrix} = P \begin{bmatrix}
+	X_{C} \\
+	Y_{C} \\
+	Z_{C} \\
+	1
+	\end{bmatrix}
+	\]
+	
+	donde $P$ se denomina \textit{intrinsic camera parameters}, la cual es camara dependiente. En el caso de ARToolKit esta misma esta definida como:
+	
+	\[
+	\begin{bmatrix}
+	s_{x}f && 0 && x_{0} && 0\\ 
+	0 && s_{y}f && y_{0} && 0\\
+	0 && 0 && 1 && 0
+	\end{bmatrix} 
+	\]
+	
+	donde $f$ es la longitud focal de la camara, $s_{x}$ el factor de escala en el eje $x$, $s_{y}$ el factor de escala en el eje $y$ y por último $(x_{0},y_{0})$ es la posicion donde el eje $z$ del sistema de coordenadas de la camara \textit{frame passes}
+	
+	
+	\subsection{Pose calculation}
+	
+	Dada las caracteristicas de las camaras modernas,podemos asumir que la distorsion puede ser separada del modelo de la camara. Aquellos puntos que pertenecen a las coordenadas sin distorsion %$\textbf{x_{i}}$ y los pertenencientes a las coordenadas del sistema del marcado como $\textbf{X_{i}}$.
+	%El proceso de deteccion de marcadores nos brinda las coordenadas de las esquinas del mismo  $\textbf{x_{1},x_{2},x_{3},x_{4}}$
+
+\subsection{asd}
+las coordenadas reales de las esquinas son conocidas. El sistema poee ocho ecuaciones, una para cada una de las coordenadas que componen los cuatro puntos de las esquinas, y 6 parametros libres. Esto posibilita la estimacion de la matriz de transformación.
+
+Un approach comunmente usado es utiliza metodos no iterativos para obtener una estimacion inicial de la pose, por ejemplio DTL direct linear transformation, y luego utilizar una optimizacion iterativa para calcular la pose exacta.
+
+Se reproyecta el mundo X en el plano de la imagen, utilizando la matriz estimada $M^{'}$, definimos el punto reproyectado $x^{'}$
+\begin{equation}
+x^{'}= M^{'}X
+\end{equation}
+
+Se puede resolver la matriz de tranformacion encontrando una matriz que miniza el error de proyecccion $||x - x^{'}||$ 
+
+\begin{equation}
+err = \frac{1}{4} \sum {i=1}{4}
+\end{equation}
+
+Este es un problema de estimacion no-lineal y el sistema puede resolverse analogamente a la calibracion de la camera utilizando el metodo iterativo Levenberg
+
+La optimizacion de lerror de reproyeccion es un metodo rapido y es utilizado por ARToolKit. En el modo de trackeo continuo, ARToolKit combina esta tecnicae con los resultados de tracking del frame anterior [83]
+
+\subsubsection{Template matvhing}
+Template markers son marcados en blanco y negro que contienen una imagen simple dentro de bordes negros. El sistema de deteccion identifica los marcados comparandolos con markers template, son ejemplos de marcadores, los cuales tienen un nombre o id unico que los identifica. De esta manera se elija la mayor comparacion.
+
+La identificacion de marcadores es una version simplificada del problema de template matching, ya que en la deteccion de marcadore el area de matching eta definida, mientras que en el problema general, la ubicacion, tamaño y orientacion de la matching area no son conocdas.
+
+En template matching, el marcador detectado es unwarped utilizando la pose de la camara calculada, escalando al tamaño del template el marcador y comparando en cuatro posicione diferentes el marcador con los distintos templates. El template que da el mayor valor de similitud (el menor de disimilitud) e el marcador correcto, adicionalmente obteniendo la orientacion correcta.
+
+Si todos los valores de similitud son menores al trheshold el sistema descarta el marcador.
+
+En lugar de unrwrapping todo el marcador, el sistema puede proyectar los centros de las cells en el template a las coordenadas de la magen utilizando la pose de la camara calculada. Luego los valores de los pixeles se puede obtener directamente de la imagen en escala de gris o threshold. El valor de los pixeles se puede coniderar como el valor del pixel mas cercano, el promerio de los N vecinos.
+
+
+Antes del template matching, generalmente, una imagen en escala de gris es normalizada de modo que aquellas zonas oscuras quedan en negro y las claras en blanco.
+
+el valor de similitud puede basarse en SSD (suma de diferencias de cuadrados) or cross-correlation
+
+\subsection{Context features}
+Para obtener correlaciones epaciale entre los niveles de confianza de cada parte con respecto a sus vecinos, se describen dos tipos de factores, "context" feature maps denotados por $\psi_1$ y $\psi_2$.
+
+Context patch features. 
+
+
+\end{document}

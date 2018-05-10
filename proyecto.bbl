@@ -1,0 +1,20 @@
+\begin{thebibliography}{1}
+
+\bibitem{bottom1}
+Leonid Pishchulin, Eldar Insafutdinov, Siyu Tang, Bjoern Andres, Mykhaylo
+  Andriluka, Peter~V. Gehler, and Bernt Schiele.
+\newblock Deepcut: Joint subset partition and labeling for multi person pose
+  estimation.
+\newblock {\em CoRR}, abs/1511.06645, 2015.
+
+\bibitem{report}
+T.~Vriends and H.~Coroporaal.
+\newblock Evaluation of high level synthesis for the implementation of marker
+  detection on fpga.
+
+\bibitem{convposemachine}
+Shih-En Wei, Varun Ramakrishna, Takeo Kanade, and Yaser Sheikh.
+\newblock Convolutional pose machines.
+\newblock In {\em CVPR}, 2016.
+
+\end{thebibliography}
