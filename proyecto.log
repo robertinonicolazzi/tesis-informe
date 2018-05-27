@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.4.7)  30 APR 2018 11:18
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.4.7)  26 MAY 2018 15:29
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -540,18 +540,18 @@ Now handling font encoding U ...
 )) (./proyecto.aux)
 \openout1 = `proyecto.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 9.
-LaTeX Font Info:    ... okay on input line 9.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 9.
-LaTeX Font Info:    ... okay on input line 9.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 9.
-LaTeX Font Info:    ... okay on input line 9.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 9.
-LaTeX Font Info:    ... okay on input line 9.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 9.
-LaTeX Font Info:    ... okay on input line 9.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 9.
-LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
 
 (/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -617,62 +617,67 @@ e
 [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}
 
 ] [2] [3]
-Overfull \hbox (8.6271pt too wide) in paragraph at lines 80--81
+Overfull \hbox (8.6271pt too wide) in paragraph at lines 100--101
 []\OT1/cmr/m/n/10 La im-a-gen es primero anal-izada por una red con-vun-cional 
 (VGG-19), generando
  []
 
 [4] [5] [6] [7] [8]
-<Imagenes/ar-coordenadas.jpg, id=43, 102.98476pt x 68.83717pt>
+Overfull \hbox (3.04378pt too wide) in paragraph at lines 234--236
+\OT1/cmr/m/n/10 primer paso se aplica una ma-triz de trans-for-maci^^Son so-bre
+ el mar-cador, aline^^Sandolo
+ []
+
+[9] <Imagenes/ar-coordenadas.jpg, id=46, 102.98476pt x 68.83717pt>
 File: Imagenes/ar-coordenadas.jpg Graphic file (type jpg)
 
 <use Imagenes/ar-coordenadas.jpg>
-Package pdftex.def Info: Imagenes/ar-coordenadas.jpg used on input line 231.
+Package pdftex.def Info: Imagenes/ar-coordenadas.jpg used on input line 251.
 (pdftex.def)             Requested size: 242.98541pt x 162.41647pt.
- [9] [10 <./Imagenes/ar-coordenadas.jpg>]
+ [10 <./Imagenes/ar-coordenadas.jpg>]
 <Imagenes/ar-normales.png, id=51, 395.22656pt x 232.61906pt>
 File: Imagenes/ar-normales.png Graphic file (type png)
 
 <use Imagenes/ar-normales.png>
-Package pdftex.def Info: Imagenes/ar-normales.png used on input line 314.
+Package pdftex.def Info: Imagenes/ar-normales.png used on input line 334.
 (pdftex.def)             Requested size: 242.98541pt x 143.01549pt.
 
 <Imagenes/ar-d1d2.png, id=52, 273.27094pt x 205.5178pt>
 File: Imagenes/ar-d1d2.png Graphic file (type png)
 
 <use Imagenes/ar-d1d2.png>
-Package pdftex.def Info: Imagenes/ar-d1d2.png used on input line 325.
+Package pdftex.def Info: Imagenes/ar-d1d2.png used on input line 345.
 (pdftex.def)             Requested size: 242.98541pt x 182.74406pt.
- [11 <./Imagenes/ar-normales.png>] [12 <./Imagenes/ar-d1d2.png>] [13] (./proyec
-to.bbl) [14] (./proyecto.aux) ) 
+ [11] [12 <./Imagenes/ar-normales.png> <./Imagenes/ar-d1d2.png>] [13] (./proyec
+to.bbl [14]) [15] (./proyecto.aux) ) 
 Here is how much of TeX's memory you used:
- 2927 strings out of 494953
- 37110 string characters out of 6180978
- 107436 words of memory out of 5000000
- 6166 multiletter control sequences out of 15000+600000
+ 2929 strings out of 494953
+ 37132 string characters out of 6180978
+ 108439 words of memory out of 5000000
+ 6168 multiletter control sequences out of 15000+600000
  7622 words of font info for 27 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 38i,12n,23p,1071b,236s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/share/texlive/texmf-dist/fonts/type1/publi
-c/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/c
-m/cmbx7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9
-.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><
-/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/s
-hare/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/te
-xlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/t
-exmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dis
-t/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/pu
-blic/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/a
-msfonts/cm/cmsy5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmt
-i10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti7.pfb
-></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb>
-Output written on proyecto.pdf (14 pages, 309029 bytes).
+ 38i,12n,23p,1073b,308s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/share/texlive/texmf-dist/fonts/type1/
+public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
+nts/cm/cmbx7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmbx9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.
+pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></
+usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/sha
+re/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/f
+onts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/pub
+lic/amsfonts/cm/cmsy5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/c
+m/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti
+7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb>
+Output written on proyecto.pdf (15 pages, 314482 bytes).
 PDF statistics:
- 121 PDF objects out of 1000 (max. 8388607)
- 84 compressed objects within 1 object stream
+ 124 PDF objects out of 1000 (max. 8388607)
+ 86 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  16 words of extra memory for PDF output out of 10000 (max. 10000000)
 

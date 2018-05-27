@@ -1,11 +1,26 @@
 \begin{thebibliography}{1}
 
+\bibitem{bottom2}
+Eldar Insafutdinov, Leonid Pishchulin, Bjoern Andres, Mykhaylo Andriluka, and
+  Bernt Schiele.
+\newblock Deepercut: {A} deeper, stronger, and faster multi-person pose
+  estimation model.
+\newblock {\em CoRR}, abs/1605.03170, 2016.
+
 \bibitem{bottom1}
 Leonid Pishchulin, Eldar Insafutdinov, Siyu Tang, Bjoern Andres, Mykhaylo
   Andriluka, Peter~V. Gehler, and Bernt Schiele.
 \newblock Deepcut: Joint subset partition and labeling for multi person pose
   estimation.
 \newblock {\em CoRR}, abs/1511.06645, 2015.
+
+\bibitem{posemachine}
+Varun Ramakrishna, Daniel Munoz, Martial Hebert, James Andrew~Bagnell, and
+  Yaser Sheikh.
+\newblock Pose machines: Articulated pose estimation via inference machines.
+\newblock In David Fleet, Tomas Pajdla, Bernt Schiele, and Tinne Tuytelaars,
+  editors, {\em Computer Vision -- ECCV 2014}, pages 33--47, Cham, 2014.
+  Springer International Publishing.
 
 \bibitem{report}
 T.~Vriends and H.~Coroporaal.
